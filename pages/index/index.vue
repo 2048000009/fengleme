@@ -15,6 +15,11 @@ const loading = ref(false)
 const userInfo = ref<any>(null)
 const checkinStats = ref<any>(null)
 const checkinResult = ref<any>(null)
+const showCelebration = ref(false)
+const celebrationType = ref<'normal' | 'week' | 'month' | 'hundred'>('normal')
+
+const CACHE_KEY = 'checkin_cache_data'
+const CACHE_DATE_KEY = 'checkin_cache_date'
 
 const checkinQuotes = [
   '签到成功！今天的你，比昨天更疯了一点 🎉',
@@ -30,19 +35,52 @@ const certificationQuotes = [
   '恭喜你成为正式疯友，发疯许可证已生效 🎫'
 ]
 
-const loadData = async () => {
+const getTodayDate = (): string => {
+  return new Date().toISOString().split('T')[0]
+}
+
+const isCacheValid = (): boolean => {
+  const cacheDate = storage.get(CACHE_DATE_KEY)
+  return cacheDate === getTodayDate()
+}
+
+const saveToCache = (data: any): void => {
+  storage.set(CACHE_KEY, data)
+  storage.set(CACHE_DATE_KEY, getTodayDate())
+}
+
+const loadFromCache = (): any | null => {
+  if (!isCacheValid()) {
+    return null
+  }
+  return storage.get(CACHE_KEY)
+}
+
+const loadData = async (forceRefresh: boolean = false) => {
   try {
+    if (!forceRefresh) {
+      const cachedData = loadFromCache()
+      if (cachedData) {
+        checkinStats.value = cachedData.stats
+        isCheckedIn.value = cachedData.isCheckedIn
+        userInfo.value = cachedData.userInfo
+      }
+    }
+    
     if (isLogin()) {
-      // 获取用户信息
       const userRes = await getUserInfo()
       userInfo.value = userRes.data
       
-      // 获取签到统计
       const statsRes = await getCheckinStats()
       checkinStats.value = statsRes.data
       isCheckedIn.value = statsRes.data.isCheckedIn
+      
+      saveToCache({
+        stats: statsRes.data,
+        isCheckedIn: statsRes.data.isCheckedIn,
+        userInfo: userRes.data
+      })
     } else {
-      // 加载匿名用户数据
       const anonymousData = storage.get('fengleme_anonymous_data')
       if (anonymousData) {
         checkinStats.value = {
@@ -54,7 +92,6 @@ const loadData = async () => {
         }
         isCheckedIn.value = anonymousData.isCheckedIn || false
       } else {
-        // 初始化匿名用户数据
         checkinStats.value = {
           continuousDays: 0,
           totalDays: 0,
@@ -64,10 +101,39 @@ const loadData = async () => {
         }
         isCheckedIn.value = false
       }
+      
+      saveToCache({
+        stats: checkinStats.value,
+        isCheckedIn: false,
+        userInfo: null
+      })
     }
   } catch (e) {
     console.error('加载数据失败', e)
+    if (!checkinStats.value) {
+      const cachedData = loadFromCache()
+      if (cachedData) {
+        checkinStats.value = cachedData.stats
+        isCheckedIn.value = cachedData.isCheckedIn
+      }
+    }
   }
+}
+
+const getCelebrationType = (continuousDays: number, totalDays: number): 'normal' | 'week' | 'month' | 'hundred' => {
+  if (totalDays === 100 || totalDays % 100 === 0) return 'hundred'
+  if (continuousDays >= 30) return 'month'
+  if (continuousDays >= 7 && continuousDays % 7 === 0) return 'week'
+  return 'normal'
+}
+
+const showCelebrationEffect = (type: 'normal' | 'week' | 'month' | 'hundred') => {
+  celebrationType.value = type
+  showCelebration.value = true
+  
+  setTimeout(() => {
+    showCelebration.value = false
+  }, 3000)
 }
 
 const checkIn = async () => {
@@ -76,21 +142,26 @@ const checkIn = async () => {
   loading.value = true
   try {
     if (isLogin()) {
-      // 登录用户签到
       const res = await doCheckin()
       checkinResult.value = res.data
       isCheckedIn.value = true
       
-      // 更新签到到任务系统
       taskSystem.completeTask('signIn')
       
-      // 更新统计
       checkinStats.value.continuousDays = res.data.continuousDays
       checkinStats.value.totalDays = res.data.totalDays
       checkinStats.value.crazyPoints = res.data.crazyPoints
       checkinStats.value.level = res.data.level
+      
+      saveToCache({
+        stats: checkinStats.value,
+        isCheckedIn: true,
+        userInfo: userInfo.value
+      })
+      
+      const celebType = getCelebrationType(res.data.continuousDays, res.data.totalDays)
+      setTimeout(() => showCelebrationEffect(celebType), 500)
     } else {
-      // 匿名用户签到
       const anonymousData = storage.get('fengleme_anonymous_data') || {
         continuousDays: 0,
         totalDays: 0,
@@ -100,7 +171,6 @@ const checkIn = async () => {
         lastCheckinDate: ''
       }
       
-      // 计算连续签到天数
       const today = new Date().toISOString().split('T')[0]
       let continuousDays = anonymousData.continuousDays
       if (anonymousData.lastCheckinDate) {
@@ -117,8 +187,7 @@ const checkIn = async () => {
         continuousDays = 1
       }
       
-      // 更新数据
-      const points = 15 // 固定奖励15疯度
+      const points = 15
       const newData = {
         continuousDays,
         totalDays: anonymousData.totalDays + 1,
@@ -128,10 +197,8 @@ const checkIn = async () => {
         lastCheckinDate: today
       }
       
-      // 保存数据
       storage.set('fengleme_anonymous_data', newData)
       
-      // 更新界面
       checkinResult.value = {
         continuousDays: newData.continuousDays,
         totalDays: newData.totalDays,
@@ -151,6 +218,15 @@ const checkIn = async () => {
         level: newData.level,
         isCheckedIn: true
       }
+      
+      saveToCache({
+        stats: checkinStats.value,
+        isCheckedIn: true,
+        userInfo: null
+      })
+      
+      const celebType = getCelebrationType(newData.continuousDays, newData.totalDays)
+      setTimeout(() => showCelebrationEffect(celebType), 500)
     }
     
     const randomCertIndex = Math.floor(Math.random() * certificationQuotes.length)
@@ -192,12 +268,40 @@ onMounted(() => {
 })
 
 onShow(() => {
-  loadData()
+  loadData(true)
 })
 </script>
 
 <template>
   <view class="container">
+    <view v-if="showCelebration" class="celebration-overlay" :class="celebrationType">
+      <view v-if="celebrationType === 'hundred'" class="celebration-content hundred">
+        <text class="celebration-emoji">🎊</text>
+        <text class="celebration-title">百疯老人！</text>
+        <text class="celebration-desc">累计签到达到100天里程碑！</text>
+        <view class="confetti-container">
+          <view class="confetti" v-for="i in 20" :key="i" :style="{ left: (i * 5) + '%', animationDelay: (i * 0.1) + 's' }"></view>
+        </view>
+      </view>
+      <view v-else-if="celebrationType === 'month'" class="celebration-content month">
+        <text class="celebration-emoji">💎</text>
+        <text class="celebration-title">月度疯魔！</text>
+        <text class="celebration-desc">连续签到30天！太强了！</text>
+        <view class="fireworks">
+          <view class="firework" v-for="i in 8" :key="i" :style="{ '--angle': (i * 45) + 'deg' }"></view>
+        </view>
+      </view>
+      <view v-else-if="celebrationType === 'week'" class="celebration-content week">
+        <text class="celebration-emoji">🔥</text>
+        <text class="celebration-title">周周不落！</text>
+        <text class="celebration-desc">连续签到7天！坚持就是胜利！</text>
+      </view>
+      <view v-else class="celebration-content normal">
+        <text class="celebration-emoji">🎉</text>
+        <text class="celebration-title">签到成功！</text>
+      </view>
+    </view>
+
     <view class="main-section">
       <view 
         class="checkin-btn" 
@@ -572,6 +676,100 @@ onShow(() => {
   font-weight: 500;
 }
 
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  
+  &.normal {
+    background: rgba(34, 215, 255, 0.3);
+  }
+  
+  &.week {
+    background: rgba(255, 152, 0, 0.3);
+  }
+  
+  &.month {
+    background: rgba(156, 39, 176, 0.3);
+  }
+  
+  &.hundred {
+    background: rgba(255, 215, 0, 0.4);
+  }
+}
+
+.celebration-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: celebratePop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.celebration-emoji {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+  animation: bounce 1s ease infinite;
+}
+
+.celebration-title {
+  font-size: 52rpx;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+  margin-bottom: 12rpx;
+}
+
+.celebration-desc {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+}
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  top: -20rpx;
+  width: 16rpx;
+  height: 16rpx;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 50%;
+  animation: confettiFall 2s ease-out forwards;
+}
+
+.fireworks {
+  position: relative;
+  width: 400rpx;
+  height: 400rpx;
+}
+
+.firework {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10rpx;
+  height: 10rpx;
+  background: radial-gradient(circle, #FFD700, transparent);
+  border-radius: 50%;
+  transform: rotate(var(--angle)) translateY(-150rpx);
+  animation: fireworkBurst 1s ease-out forwards;
+}
+
 @keyframes bounceIn {
   0% { opacity: 0; transform: scale(0.5); }
   50% { transform: scale(1.05); }
@@ -582,6 +780,40 @@ onShow(() => {
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30rpx); }
+}
+
+@keyframes celebratePop {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { transform: scale(1.1); }
+  70% { transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes confettiFall {
+  0% { 
+    opacity: 1; 
+    transform: translateY(0) rotate(0deg); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(100vh) rotate(720deg); 
+  }
+}
+
+@keyframes fireworkBurst {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-200rpx) scale(2);
+  }
 }
 
 .bounce-in {
