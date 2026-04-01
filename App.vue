@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
 import themeManager from '@/utils/theme'
-import { storage } from '@/utils/storage'
-import OnboardingGuide from '@/components/OnboardingGuide.vue'
-
-const showOnboarding = ref(false)
-const GUIDE_KEY = 'fengleme_onboard_completed'
 
 onLaunch(() => {
   console.log('App Launch')
@@ -25,20 +19,6 @@ onLaunch(() => {
       }
     })
   }
-  
-  const hasCompletedOnboard = storage.get(GUIDE_KEY)
-  if (!hasCompletedOnboard) {
-    showOnboarding.value = true
-  }
-})
-
-onMounted(() => {
-  setTimeout(() => {
-    const hasCompletedOnboard = storage.get(GUIDE_KEY)
-    if (!hasCompletedOnboard) {
-      showOnboarding.value = true
-    }
-  }, 500)
 })
 
 onShow(() => {
@@ -48,25 +28,11 @@ onShow(() => {
 onHide(() => {
   console.log('App Hide')
 })
-
-const handleGuideClose = () => {
-  showOnboarding.value = false
-}
-
-const handleGuideSkip = () => {
-  showOnboarding.value = false
-}
 </script>
 
 <template>
   <view id="app">
     <slot />
-    
-    <OnboardingGuide 
-      v-if="showOnboarding" 
-      @close="handleGuideClose" 
-      @skip="handleGuideSkip" 
-    />
   </view>
 </template>
 

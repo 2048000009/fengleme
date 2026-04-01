@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { storage } from '@/utils/storage'
 
-const emit = defineEmits(['close', 'skip'])
-
 const currentStep = ref(0)
+const showGuide = ref(true)
 const GUIDE_KEY = 'onboard_completed'
 const isAnimating = ref(false)
 
@@ -65,17 +65,26 @@ const prevStep = () => {
 
 const handleStart = () => {
   storage.set(GUIDE_KEY, true)
-  emit('close')
+  uni.switchTab({ url: '/pages/index/index' })
 }
 
 const handleSkip = () => {
   storage.set(GUIDE_KEY, true)
-  emit('skip')
+  uni.switchTab({ url: '/pages/index/index' })
 }
+
+onLoad(() => {
+  const hasCompletedOnboard = storage.get(GUIDE_KEY)
+  console.log('Guide onLoad, hasCompleted:', hasCompletedOnboard)
+  if (hasCompletedOnboard) {
+    showGuide.value = false
+    uni.switchTab({ url: '/pages/index/index' })
+  }
+})
 </script>
 
 <template>
-  <view class="guide-container">
+  <view v-if="showGuide" class="guide-container">
     <view class="guide-bg" :style="{ background: step.bgColor }"></view>
     
     <view class="guide-content">
@@ -214,12 +223,6 @@ const handleSkip = () => {
 @keyframes bounceOut {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(0.85); opacity: 0.5; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes bounceIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  60% { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onShow } from 'vue'
+import { ref, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { login, getUserInfo, setToken, getToken, isLogin } from '@/api'
 import { getCheckinStats, doCheckin } from '@/api'
 import { storage } from '@/utils/storage'

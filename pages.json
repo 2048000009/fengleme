@@ -1,6 +1,15 @@
 {
   "pages": [
     {
+      "path": "pages/guide/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents"
+      }
+    },
+    {
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "疯了么",
