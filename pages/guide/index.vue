@@ -10,25 +10,28 @@ const isAnimating = ref(false)
 
 const steps = [
   {
-    icon: '🤪',
+    icon: 'logo',
     title: '欢迎来到"疯了么"',
     desc: '一款让你每天证明自己"还活着"\n同时释放压力的趣味签到APP',
     bgColor: 'linear-gradient(180deg, #22D7FF 0%, #00C8EB 100%)',
-    feature: '每日签到 · 积累疯度 · 记录生活'
+    feature: '每日签到 · 积累疯度 · 记录生活',
+    animation: 'rotate'
   },
   {
-    icon: '🎮',
+    icon: 'logo-check',
     title: '疯批签到',
     desc: '点击首页大大的签到按钮\n完成今日的"发疯"打卡！',
     bgColor: 'linear-gradient(180deg, #FF6B6B 0%, #FF4D4F 100%)',
-    feature: '每次签到获得15疯度\n连续签到奖励更多哦～'
+    feature: '每次签到获得15疯度\n连续签到奖励更多哦～',
+    animation: 'bounce'
   },
   {
-    icon: '🚨',
+    icon: 'logo-shield',
     title: '疯友守护',
     desc: '添加紧急联系人\n连续未签到会通知他们关心你',
     bgColor: 'linear-gradient(180deg, #9C27B0 0%, #7B1FA2 100%)',
-    feature: '登录后可使用全部功能\n数据同步云端更安全'
+    feature: '登录后可使用全部功能\n数据同步云端更安全',
+    animation: 'pulse'
   }
 ]
 
@@ -93,8 +96,16 @@ onLoad(() => {
       </view>
       
       <view class="card-wrapper">
-        <view class="icon-container" :class="{ animating: isAnimating }">
-          <text class="step-icon">{{ step.icon }}</text>
+        <view class="icon-container" :class="[step.animation, { animating: isAnimating }]">
+          <view class="logo-wrapper">
+            <image class="logo-img" src="/logo1.png" mode="aspectFit"></image>
+            <!-- 第2步显示对勾 -->
+            <view v-if="currentStep === 1" class="check-mark">
+              <text class="check-icon">✓</text>
+            </view>
+            <!-- 第3步显示护盾 -->
+            <view v-if="currentStep === 2" class="shield-ring"></view>
+          </view>
         </view>
         
         <view class="text-section">
@@ -204,8 +215,8 @@ onLoad(() => {
 }
 
 .icon-container {
-  width: 240rpx;
-  height: 240rpx;
+  width: 280rpx;
+  height: 280rpx;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   display: flex;
@@ -214,10 +225,117 @@ onLoad(() => {
   margin-bottom: 60rpx;
   backdrop-filter: blur(10rpx);
   transition: transform 0.3s ease-out;
+  position: relative;
+  
+  // 第1步：旋转动画
+  &.rotate {
+    animation: rotateIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    .logo-img {
+      animation: float 3s ease-in-out infinite;
+    }
+  }
+  
+  // 第2步：弹跳动画
+  &.bounce {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    .logo-img {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+  
+  // 第3步：脉冲动画
+  &.pulse {
+    animation: scaleIn 0.6s ease-out;
+    
+    .logo-img {
+      animation: glow 2s ease-in-out infinite;
+    }
+  }
   
   &.animating {
     animation: bounceOut 0.3s ease-out;
   }
+}
+
+.logo-wrapper {
+  position: relative;
+  width: 180rpx;
+  height: 180rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  width: 160rpx;
+  height: 160rpx;
+  filter: drop-shadow(0 8rpx 16rpx rgba(0, 0, 0, 0.2));
+}
+
+// 对勾标记
+.check-mark {
+  position: absolute;
+  bottom: 10rpx;
+  right: 10rpx;
+  width: 60rpx;
+  height: 60rpx;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.4);
+  animation: checkPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s both;
+}
+
+.check-icon {
+  font-size: 36rpx;
+  color: #fff;
+  font-weight: 700;
+}
+
+// 护盾光环
+.shield-ring {
+  position: absolute;
+  top: -20rpx;
+  left: -20rpx;
+  right: -20rpx;
+  bottom: -20rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: ringPulse 2s ease-in-out infinite;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10rpx;
+    left: 10rpx;
+    right: 10rpx;
+    bottom: 10rpx;
+    border: 2rpx solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: ringPulse 2s ease-in-out infinite 0.5s;
+  }
+}
+
+// 动画定义
+@keyframes rotateIn {
+  0% { transform: rotate(-180deg) scale(0); opacity: 0; }
+  100% { transform: rotate(0) scale(1); opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes bounceOut {
@@ -226,8 +344,40 @@ onLoad(() => {
   100% { transform: scale(1); opacity: 1; }
 }
 
-.step-icon {
-  font-size: 120rpx;
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10rpx) rotate(5deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    filter: drop-shadow(0 8rpx 16rpx rgba(0, 0, 0, 0.2)) brightness(1);
+  }
+  50% { 
+    filter: drop-shadow(0 8rpx 16rpx rgba(0, 0, 0, 0.2)) brightness(1.2) drop-shadow(0 0 20rpx rgba(255, 255, 255, 0.5));
+  }
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ringPulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.6;
+  }
 }
 
 .text-section {
