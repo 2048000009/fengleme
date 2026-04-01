@@ -1,0 +1,149 @@
+import { get, post } from '@/utils/request'
+import { storage } from '../utils/storage'
+
+const USER_INFO_KEY = 'fengleme_user_info'
+const OPENID_KEY = 'fengleme_openid'
+
+export interface UserInfo {
+  id: number
+  nickname: string
+  avatar: string
+  phone?: string
+  email?: string
+  gender: number
+  signature: string
+  crazy_points: number
+  continuous_days: number
+  total_days: number
+  level: string
+  last_checkin_date?: string
+  join_date: string
+}
+
+export interface CheckinSettings {
+  safetyDays: number
+  reminderEnabled: boolean
+  reminderTime: string
+  reminderMethod: 'email' | 'push'
+}
+
+export interface SmsCodeResult {
+  expire_time: number
+  code?: string
+}
+
+export interface LoginResult {
+  token: string
+  userInfo: UserInfo
+  isNewUser?: boolean
+}
+
+export interface WechatOAuthResult {
+  oauth_url: string
+  state: string
+}
+
+export const register = (data: {
+  nickname: string
+  phone: string
+  email: string
+  password: string
+}) => {
+  return post<{ token: string; userInfo: UserInfo }>('/api/user/register', data)
+}
+
+export const login = (phone: string, password: string) => {
+  return post<{ token: string; userInfo: UserInfo }>('/api/user/login', {
+    phone,
+    password
+  })
+}
+
+export const sendSmsCode = (phone: string, type: 'login' | 'register' | 'reset' | 'bind' = 'login') => {
+  return post<SmsCodeResult>('/api/auth/sendSmsCode', { phone, type })
+}
+
+export const loginBySms = (phone: string, code: string) => {
+  return post<LoginResult>('/api/auth/loginBySms', { phone, code })
+}
+
+export const resetPassword = (phone: string, code: string, newPassword: string, confirmPassword: string) => {
+  return post('/api/auth/resetPassword', { phone, code, newPassword, confirmPassword })
+}
+
+export const getWechatOAuthUrl = (redirectUri?: string) => {
+  return post<WechatOAuthResult>('/api/auth/getWechatOAuthUrl', { redirect_uri: redirectUri })
+}
+
+export const wechatLogin = (code: string, state?: string) => {
+  return post<LoginResult>('/api/auth/wechatLogin', { code, state })
+}
+
+export const wechatMiniLogin = (code: string) => {
+  return post<LoginResult>('/api/auth/wechatMiniLogin', { code })
+}
+
+export const bindWechat = (code: string) => {
+  return post('/api/auth/bindWechat', { code })
+}
+
+export const unbindWechat = () => {
+  return post('/api/auth/unbindWechat')
+}
+
+export const getUserInfo = () => {
+  return get<UserInfo>('/api/user/info')
+}
+
+export const updateUserInfo = (data: Partial<UserInfo>) => {
+  return post('/api/user/update', data)
+}
+
+export const bindEmail = (email: string) => {
+  return post('/api/user/bind-email', { email })
+}
+
+export const bindPhone = (phone: string) => {
+  return post('/api/user/bind-phone', { phone })
+}
+
+export const logout = () => {
+  return post('/api/user/logout')
+}
+
+export const clearLoginData = () => {
+  storage.remove('token')
+  storage.remove(USER_INFO_KEY)
+  storage.remove(OPENID_KEY)
+}
+
+export const setToken = (token: string) => {
+  storage.set('token', token)
+}
+
+export const getToken = () => {
+  return storage.get('token')
+}
+
+export const clearToken = () => {
+  storage.remove('token')
+}
+
+export const isLogin = () => {
+  return !!storage.get('token')
+}
+
+export const getCheckinSettings = () => {
+  return get<CheckinSettings>('/api/user/getCheckinSettings')
+}
+
+export const saveCheckinSettings = (data: Partial<CheckinSettings>) => {
+  return post('/api/user/saveCheckinSettings', data)
+}
+
+export const changePassword = (data: {
+  oldPassword: string
+  newPassword: string
+}) => {
+  return post('/api/user/changePassword', data)
+}

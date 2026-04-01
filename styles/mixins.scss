@@ -1,0 +1,317 @@
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin ellipsis($line: 1) {
+  @if $line == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $line;
+    overflow: hidden;
+  }
+}
+
+@mixin safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@mixin safe-area-top {
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
+}
+
+@mixin safe-area-padding {
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@mixin gradient-blue {
+  background: linear-gradient(135deg, $blue-primary 0%, $blue-dark 100%);
+}
+
+@mixin gradient-yellow {
+  background: linear-gradient(135deg, $yellow-primary 0%, $yellow-dark 100%);
+}
+
+@mixin card-shadow {
+  box-shadow: $shadow-md;
+  border-radius: $border-radius-lg;
+  background: $white-primary;
+}
+
+@mixin button-primary {
+  background: linear-gradient(135deg, $blue-primary 0%, $blue-dark 100%);
+  color: $white-primary;
+  border: none;
+  border-radius: 48rpx;
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-size-lg;
+  box-shadow: 0 8rpx 24rpx rgba($blue-primary, 0.3);
+}
+
+@mixin button-secondary {
+  background: $white-primary;
+  color: $blue-primary;
+  border: 2rpx solid $blue-primary;
+  border-radius: 48rpx;
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-size-lg;
+}
+
+@mixin touch-active {
+  &:active {
+    opacity: $touch-active-opacity;
+    transform: scale($touch-scale);
+    transition: all 0.1s;
+  }
+}
+
+@mixin touch-min-size {
+  min-width: $touch-min-size;
+  min-height: $touch-min-size;
+}
+
+@mixin button-touch {
+  @include touch-min-size;
+  @include touch-active;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@mixin smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+@mixin no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@mixin hardware-accelerate {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@mixin glass-effect {
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1rpx solid $glass-border;
+  box-shadow: $glass-shadow;
+}
+
+@mixin glass-card {
+  @include glass-effect;
+  border-radius: $border-radius-xl;
+}
+
+@mixin modern-card {
+  background: $white-primary;
+  border-radius: $border-radius-xl;
+  box-shadow: $card-shadow;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: $card-shadow-hover;
+  }
+}
+
+@mixin gradient-card($start-color, $end-color) {
+  background: linear-gradient(135deg, $start-color 0%, $end-color 100%);
+  border-radius: $border-radius-xl;
+  box-shadow: 0 8rpx 32rpx rgba($start-color, 0.25);
+  color: $white-primary;
+}
+
+@mixin animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@mixin pulse-animation {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@mixin float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+@mixin shine-effect {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    transform: rotate(30deg);
+    animation: shine 3s infinite;
+  }
+}
+
+@mixin skeleton-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s infinite;
+}
+
+@mixin ripple-effect {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  &:active::before {
+    width: 200%;
+    height: 200%;
+  }
+}
+
+@mixin text-gradient($start-color, $end-color) {
+  background: linear-gradient(135deg, $start-color 0%, $end-color 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin icon-container($size: 88rpx, $bg-color: rgba(0, 0, 0, 0.05)) {
+  width: $size;
+  height: $size;
+  border-radius: $border-radius-lg;
+  background: $bg-color;
+  @include flex-center;
+}
+
+@mixin status-badge($bg-color, $text-color: $white-primary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 20rpx;
+  border-radius: 100rpx;
+  background: $bg-color;
+  color: $text-color;
+  font-size: $font-size-sm;
+  font-weight: 500;
+}
+
+@mixin divider {
+  height: 1rpx;
+  background: $border-color;
+  margin: $spacing-md 0;
+}
+
+@mixin safe-page {
+  min-height: 100vh;
+  padding: $spacing-xl;
+  padding-top: calc(#{$spacing-xl} + constant(safe-area-inset-top));
+  padding-top: calc(#{$spacing-xl} + env(safe-area-inset-top));
+  padding-bottom: calc(#{$spacing-xl} + constant(safe-area-inset-bottom));
+  padding-bottom: calc(#{$spacing-xl} + env(safe-area-inset-bottom));
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10rpx); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
+}
+
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(100rpx); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scale-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

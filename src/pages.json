@@ -1,0 +1,341 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "疯了么",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#ffffff",
+            "titleColor": "#000000"
+          },
+          "animationType": "pop-in",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/mood/index",
+      "style": {
+        "navigationBarTitleText": "签到设置",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#ffffff",
+            "titleColor": "#000000"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/risk/index",
+      "style": {
+        "navigationBarTitleText": "疯险自检",
+        "navigationBarBackgroundColor": "#f2994a",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#f2994a",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/rescue/index",
+      "style": {
+        "navigationBarTitleText": "疯神榜",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": true,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#ffffff",
+            "titleColor": "#000000"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/life/index",
+      "style": {
+        "navigationBarTitleText": "人生计算器",
+        "navigationBarBackgroundColor": "#11998e",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#11998e",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/ranking/index",
+      "style": {
+        "navigationBarTitleText": "发疯排行榜",
+        "navigationBarBackgroundColor": "#00D4AA",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#00D4AA",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarBackgroundColor": "#00D4AA",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#00D4AA",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "pop-in",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/rescue/contacts",
+      "style": {
+        "navigationBarTitleText": "紧急联系人",
+        "navigationBarBackgroundColor": "#f5576c",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#f5576c",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/rescue/games",
+      "style": {
+        "navigationBarTitleText": "在线镇静剂",
+        "navigationBarBackgroundColor": "#f5576c",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#f5576c",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/rescue/professional",
+      "style": {
+        "navigationBarTitleText": "专业干预",
+        "navigationBarBackgroundColor": "#f5576c",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#f5576c",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/rescue/webview",
+      "style": {
+        "navigationBarTitleText": "专业咨询",
+        "navigationBarBackgroundColor": "#f5576c",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#f5576c",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/settings/index",
+      "style": {
+        "navigationBarTitleText": "设置",
+        "navigationBarBackgroundColor": "#00D4AA",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#00D4AA",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/profile/edit",
+      "style": {
+        "navigationBarTitleText": "编辑资料",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#ffffff",
+            "titleColor": "#000000"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/messages/index",
+      "style": {
+        "navigationBarTitleText": "消息中心",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": true,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#ffffff",
+            "titleColor": "#000000"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
+      "path": "pages/feedback/index",
+      "style": {
+        "navigationBarTitleText": "宝贵意见",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#ffffff",
+            "titleColor": "#000000"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "疯了么",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f5f5",
+    "lazyCodeLoading": "requiredComponents",
+    "app-plus": {
+      "bounce": "vertical",
+      "animationType": "slide-in-right",
+      "animationDuration": 300,
+      "background": "#f5f5f5"
+    }
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#00D4AA",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "height": "56px",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.svg",
+        "selectedIconPath": "static/tabbar/home-active.svg"
+      },
+      {
+        "pagePath": "pages/mood/index",
+        "text": "签到设置",
+        "iconPath": "static/tabbar/mood.svg",
+        "selectedIconPath": "static/tabbar/mood-active.svg"
+      },
+      {
+        "pagePath": "pages/rescue/index",
+        "text": "疯神榜",
+        "iconPath": "static/tabbar/rescue.svg",
+        "selectedIconPath": "static/tabbar/rescue-active.svg"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/mine.svg",
+        "selectedIconPath": "static/tabbar/mine-active.svg"
+      }
+    ],
+    "app-plus": {
+      "blurEffect": "none",
+      "scrollIndicator": "none",
+      "titleNView": false
+    }
+  },
+  "uniIdRouter": {},
+  "app-plus": {
+    "usingComponents": true,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "android": {
+      "hardwareAccelerated": true
+    },
+    "ios": {
+      "hardwareAccelerated": true
+    }
+  }
+}

@@ -1,0 +1,111 @@
+$blue-primary: #22D7FF;
+$blue-light: #66E5FF;
+$blue-dark: #00B8E6;
+$blue-bg: #E6F9FF;
+
+$yellow-primary: #FFCC00;
+$yellow-light: #FFD60A;
+$yellow-dark: #FF9500;
+$yellow-bg: #FFF8E1;
+
+$black-primary: #000000;
+$black-light: #1C1C1E;
+$black-dark: #2C2C2E;
+
+$white-primary: #ffffff;
+$white-light: #FAFAFA;
+$white-dark: #F5F5F7;
+
+$success: #34C759;
+$warning: #FF9500;
+$error: #FF3B30;
+$info: #007AFF;
+
+$text-primary: #1C1C1E;
+$text-secondary: #3A3A3C;
+$text-placeholder: #8E8E93;
+$text-disabled: #C7C7CC;
+
+$border-color: #E5E5EA;
+$border-radius: 12rpx;
+$border-radius-lg: 20rpx;
+$border-radius-xl: 28rpx;
+$border-radius-2xl: 36rpx;
+
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 40rpx;
+$spacing-2xl: 60rpx;
+
+$font-size-xs: 20rpx;
+$font-size-sm: 24rpx;
+$font-size-md: 28rpx;
+$font-size-lg: 32rpx;
+$font-size-xl: 36rpx;
+$font-size-2xl: 48rpx;
+$font-size-3xl: 64rpx;
+
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 16rpx 48rpx rgba(0, 0, 0, 0.15);
+
+$transition-fast: 0.15s ease;
+$transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 0.3s ease;
+
+$status-bar-height: 44rpx;
+$tab-bar-height: 98rpx;
+$safe-area-top: constant(safe-area-inset-top);
+$safe-area-top-env: env(safe-area-inset-top);
+$safe-area-bottom: constant(safe-area-inset-bottom);
+$safe-area-bottom-env: env(safe-area-inset-bottom);
+
+$touch-min-size: 88rpx;
+$touch-active-opacity: 0.7;
+$touch-scale: 0.96;
+
+$gradient-primary: #002FA7;
+$gradient-secondary: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
+$gradient-success: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+$gradient-warning: linear-gradient(135deg, #FF9500 0%, #FFCC00 100%);
+$gradient-danger: linear-gradient(135deg, #FF3B30 0%, #FF453A 100%);
+$gradient-cool: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%);
+$gradient-sunset: linear-gradient(135deg, #FA709A 0%, #FEE140 100%);
+$gradient-ocean: linear-gradient(135deg, #2193B0 0%, #6DD5ED 100%);
+$gradient-forest: linear-gradient(135deg, #134E5E 0%, #71B280 100%);
+$gradient-night: linear-gradient(135deg, #232526 0%, #414345 100%);
+$gradient-aurora: linear-gradient(135deg, #00C6FB 0%, #005BEA 100%);
+$gradient-candy: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 50%, #FECFEF 100%);
+
+$glass-bg: rgba(255, 255, 255, 0.72);
+$glass-border: rgba(255, 255, 255, 0.3);
+$glass-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+
+$card-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$card-shadow-hover: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+
+$feature-colors: (
+  mood: (
+    primary: #667eea,
+    light: #a8b5ff,
+    bg: rgba(102, 126, 234, 0.1)
+  ),
+  rescue: (
+    primary: #f5576c,
+    light: #ff8a94,
+    bg: rgba(245, 87, 108, 0.1)
+  ),
+  risk: (
+    primary: #f2994a,
+    light: #ffbe76,
+    bg: rgba(242, 153, 74, 0.1)
+  ),
+  life: (
+    primary: #11998e,
+    light: #38ef7d,
+    bg: rgba(17, 153, 142, 0.1)
+  )
+);

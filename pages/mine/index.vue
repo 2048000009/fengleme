@@ -1,0 +1,536 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { storage } from '@/utils/storage'
+import { getUserInfo, updateUserInfo, isLogin, getUnreadCount, logout, clearLoginData } from '@/api'
+
+const USER_INFO_KEY = 'fengleme_user_info'
+const OPENID_KEY = 'fengleme_openid'
+
+interface UserInfo {
+  id: number
+  nickname: string
+  avatar: string
+  gender: number
+  signature: string
+  phone?: string
+  email?: string
+  crazy_points?: number
+  continuous_days?: number
+  total_days?: number
+  level?: string
+  join_date?: string
+  isLogin: boolean
+}
+
+const userInfo = ref<UserInfo>({
+  id: 0,
+  nickname: '',
+  avatar: '',
+  gender: 0,
+  signature: '',
+  isLogin: false
+})
+const loading = ref(false)
+const unreadCount = ref(0)
+let refreshTimer: number | null = null
+
+const loadUserData = async () => {
+  loading.value = true
+  try {
+    if (isLogin()) {
+      const res = await getUserInfo()
+      userInfo.value = {
+        ...res.data,
+        isLogin: true
+      }
+      storage.set(USER_INFO_KEY, userInfo.value)
+      
+      await fetchUnreadCount()
+      
+      if (!refreshTimer) {
+        refreshTimer = setInterval(() => {
+          if (isLogin()) {
+            fetchUnreadCount()
+          }
+        }, 60000) as unknown as number
+      }
+    } else {
+      resetUserInfo()
+    }
+  } catch (e) {
+    console.error('获取用户信息失败', e)
+    resetUserInfo()
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadUserData()
+})
+
+onShow(() => {
+  loadUserData()
+})
+
+onUnmounted(() => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
+})
+
+const resetUserInfo = () => {
+  userInfo.value = {
+    id: 0,
+    nickname: '',
+    avatar: '',
+    gender: 0,
+    signature: '',
+    isLogin: false
+  }
+  storage.set(USER_INFO_KEY, userInfo.value)
+}
+
+const fetchUnreadCount = async () => {
+  try {
+    const res = await getUnreadCount()
+    unreadCount.value = res.data.count || 0
+  } catch (e) {
+    console.error('获取未读消息数失败', e)
+    unreadCount.value = 0
+  }
+}
+
+const handleUpdateUserInfo = async (data: Partial<UserInfo>) => {
+  try {
+    uni.showLoading({ title: '保存中...' })
+    await updateUserInfo(data)
+    uni.showToast({ title: '保存成功', icon: 'success' })
+    userInfo.value = { ...userInfo.value, ...data }
+    storage.set(USER_INFO_KEY, userInfo.value)
+  } catch (e) {
+    console.error('更新用户信息失败', e)
+    uni.showToast({ title: '保存失败', icon: 'none' })
+    throw e
+  } finally {
+    uni.hideLoading()
+  }
+}
+
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/auth/login' })
+}
+
+const goToRegister = () => {
+  uni.navigateTo({ url: '/pages/auth/register' })
+}
+
+const goToEditProfile = () => {
+  if (!userInfo.value.isLogin) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    return
+  }
+  uni.navigateTo({ 
+    url: '/pages/profile/edit',
+    success: (res) => {
+      res.eventChannel.emit('userInfo', userInfo.value)
+    }
+  })
+}
+
+const goToSettings = () => {
+  uni.navigateTo({ url: '/pages/settings/index' })
+}
+
+const goToMessages = () => {
+  if (!userInfo.value.isLogin) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    return
+  }
+  uni.navigateTo({ url: '/pages/messages/index' })
+}
+
+const goToFeedback = () => {
+  uni.navigateTo({ url: '/pages/feedback/index' })
+}
+
+const handleLogout = () => {
+  uni.showModal({
+    title: '确认退出',
+    content: '确定要退出登录吗？',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          uni.showLoading({ title: '退出中...' })
+          await logout()
+          clearLoginData()
+          resetUserInfo()
+          uni.showToast({ title: '已退出登录', icon: 'success' })
+        } catch (e) {
+          console.error('退出失败', e)
+          uni.showToast({ title: '退出失败，请重试', icon: 'none' })
+        } finally {
+          uni.hideLoading()
+        }
+      }
+    }
+  })
+}
+
+const goToRanking = () => {
+  uni.navigateTo({ url: '/pages/ranking/index' })
+}
+
+const goToChangePassword = () => {
+  uni.navigateTo({ url: '/pages/profile/change-password' })
+}
+
+const goToSecurity = () => {
+  uni.navigateTo({ url: '/pages/profile/security' })
+}
+
+defineExpose({
+  handleUpdateUserInfo,
+  fetchUnreadCount
+})
+</script>
+
+<template>
+  <view class="container">
+    <view v-if="loading" class="loading-container">
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <template v-else>
+      <view v-if="!userInfo.isLogin" class="login-container">
+        <view class="user-card">
+          <view class="avatar">
+            <text class="avatar-text">?</text>
+          </view>
+          <view class="user-info">
+            <text class="nickname">未登录</text>
+            <text class="user-id">请先登录或注册</text>
+          </view>
+        </view>
+        
+        <view class="login-btn-container">
+          <view class="login-btn" @click="goToLogin">
+            <text class="login-btn-text">立即登录</text>
+          </view>
+          <view class="register-btn" @click="goToRegister">
+            <text class="register-btn-text">注册账号</text>
+          </view>
+        </view>
+      </view>
+      
+      <template v-else>
+        <view class="user-card" @click="goToEditProfile">
+          <view class="avatar">
+            <image v-if="userInfo.avatar && userInfo.avatar.trim()" :src="userInfo.avatar" class="avatar-img" mode="aspectFill" />
+            <text v-else class="avatar-text">{{ userInfo.nickname ? userInfo.nickname.charAt(0) : '醒' }}</text>
+          </view>
+          <view class="user-info">
+            <text class="nickname">{{ userInfo.nickname || '用户' + userInfo.id }}</text>
+            <text class="user-id">账号ID: {{ userInfo.id }}</text>
+            <text v-if="userInfo.signature" class="signature">{{ userInfo.signature }}</text>
+          </view>
+        </view>
+
+        <view class="stats-card">
+          <view class="stats-item">
+            <text class="stats-value">{{ userInfo.crazy_points || 0 }}</text>
+            <text class="stats-label">疯情指数</text>
+          </view>
+          <view class="stats-divider"></view>
+          <view class="stats-item">
+            <text class="stats-value">{{ userInfo.continuous_days || 0 }}</text>
+            <text class="stats-label">连续签到</text>
+          </view>
+          <view class="stats-divider"></view>
+          <view class="stats-item">
+            <text class="stats-value">{{ userInfo.total_days || 0 }}</text>
+            <text class="stats-label">总签到</text>
+          </view>
+          <view class="stats-divider"></view>
+          <view class="stats-item">
+            <text class="stats-value">{{ userInfo.level || '初级疯友' }}</text>
+            <text class="stats-label">等级</text>
+          </view>
+        </view>
+
+        <view class="menu-card">
+          <view class="menu-item" @click="goToEditProfile">
+            <uni-icons type="compose" size="20" color="#22D7FF" class="menu-icon"></uni-icons>
+            <text class="menu-label">编辑资料</text>
+            <text class="menu-arrow">›</text>
+          </view>
+          <view class="menu-item" @click="goToChangePassword">
+            <uni-icons type="locked" size="20" color="#FF9500" class="menu-icon"></uni-icons>
+            <text class="menu-label">修改密码</text>
+            <text class="menu-arrow">›</text>
+          </view>
+          <view class="menu-item" @click="goToSecurity">
+            <uni-icons type="auth" size="20" color="#52C41A" class="menu-icon"></uni-icons>
+            <text class="menu-label">账户安全</text>
+            <text class="menu-arrow">›</text>
+          </view>
+          <view class="menu-item" @click="goToSettings">
+            <uni-icons type="gear" size="20" color="#8E8E93" class="menu-icon"></uni-icons>
+            <text class="menu-label">系统设置</text>
+            <text class="menu-arrow">›</text>
+          </view>
+          <view class="menu-item" @click="goToMessages">
+            <uni-icons type="chat" size="20" color="#007AFF" class="menu-icon"></uni-icons>
+            <text class="menu-label">消息中心</text>
+            <view class="menu-right">
+              <view v-if="unreadCount > 0" class="badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</view>
+              <text class="menu-arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-item" @click="goToFeedback">
+            <uni-icons type="help" size="20" color="#FF6B6B" class="menu-icon"></uni-icons>
+            <text class="menu-label">宝贵意见</text>
+            <text class="menu-arrow">›</text>
+          </view>
+          <view class="menu-item" @click="handleLogout">
+            <uni-icons type="close" size="20" color="#FF4D4F" class="menu-icon"></uni-icons>
+            <text class="menu-label" style="color: #ff4d4f;">退出登录</text>
+            <text class="menu-arrow">›</text>
+          </view>
+        </view>
+      </template>
+    </template>
+  </view>
+</template>
+
+<style lang="scss" scoped>
+.container {
+  min-height: 100vh;
+  background: #F5F5F5;
+  padding-top: calc(32rpx + constant(safe-area-inset-top));
+  padding-top: calc(32rpx + env(safe-area-inset-top));
+  padding-bottom: calc(32rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.login-container {
+  padding: 40rpx 32rpx;
+}
+
+.user-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 32rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+}
+
+.avatar-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+}
+
+.user-id {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.signature {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.login-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(34, 215, 255, 0.3);
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.register-btn {
+  width: 100%;
+  height: 96rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #22D7FF;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.login-btn-text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.register-btn-text {
+  font-size: 32rpx;
+  color: #22D7FF;
+  font-weight: 600;
+}
+
+.stats-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin: 32rpx;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stats-value {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #22D7FF;
+  margin-bottom: 8rpx;
+}
+
+.stats-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.stats-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: #E5E5E5;
+}
+
+.menu-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin: 0 32rpx 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+  transition: background 0.2s;
+  
+  &:active {
+    background: #F5F5F5;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.menu-icon {
+  margin-right: 16rpx;
+}
+
+.menu-label {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.menu-arrow {
+  font-size: 36rpx;
+  color: #CCC;
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  background: #FF4D4F;
+  border-radius: 18rpx;
+  padding: 0 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+</style>

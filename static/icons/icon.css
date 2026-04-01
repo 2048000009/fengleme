@@ -1,0 +1,152 @@
+.icon {
+  display: inline-block;
+  width: 32rpx;
+  height: 32rpx;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.icon-history {
+  background-image: url('/static/icons/CRMEB-wenzhangguanli-mianxing.png');
+}
+
+.icon-ranking {
+  background-image: url('/static/icons/CRMEB-zichan-mianxing.png');
+}
+
+.icon-settings {
+  background-image: url('/static/icons/CRMEB-sucaiguanli-mianxing.png');
+}
+
+.icon-theme {
+  background-image: url('/static/icons/CRMEB-xianshi-mianxing.png');
+}
+
+.icon-trend {
+  background-image: url('/static/icons/CRMEB-zichanguanli-mianxing.png');
+}
+
+.icon-source {
+  background-image: url('/static/icons/CRMEB-shangpinguanli-mianxing.png');
+}
+
+.icon-task {
+  background-image: url('/static/icons/CRMEB-lipinka-xianxing.png');
+}
+
+.icon-achievement {
+  background-image: url('/static/icons/CRMEB-shandian-mianxing.png');
+}
+
+.icon-search {
+  background-image: url('/static/icons/CRMEB-sousuo-mianxing.png');
+}
+
+.icon-download {
+  background-image: url('/static/icons/CRMEB-xiazai.png');
+}
+
+.icon-home {
+  background-image: url('/static/icons/CRMEB-shouye-mianxing.png');
+}
+
+.icon-community {
+  background-image: url('/static/icons/CRMEB-shequ-mianxing.png');
+}
+
+.icon-mobile {
+  background-image: url('/static/icons/CRMEB-yidongduan1-mianxing.png');
+}
+
+.icon-user {
+  background-image: url('/static/icons/CRMEB-yonghu-xianxing.png');
+}
+
+.icon-night {
+  background-image: url('/static/icons/CRMEB-yewan-mianxing.png');
+}
+
+.icon-sun {
+  background-image: url('/static/icons/CRMEB-richu-mianxing.png');
+}
+
+.icon-article {
+  background-image: url('/static/icons/CRMEB-wenzhangguanli-mianxing.png');
+}
+
+.icon-material {
+  background-image: url('/static/icons/CRMEB-sucaiguanli-mianxing.png');
+}
+
+.icon-explain {
+  background-image: url('/static/icons/CRMEB-shuoming-mianxing.png');
+}
+
+.icon-hide {
+  background-image: url('/static/icons/CRMEB-yincang-mianxing.png');
+}
+
+.icon-fullscreen {
+  background-image: url('/static/icons/CRMEB-quanping.png');
+}
+
+.icon-member {
+  background-image: url('/static/icons/CRMEB-goumaihuiyuanjine-xianxing.png');
+}
+
+.icon-asset-management {
+  background-image: url('/static/icons/CRMEB-zichanguanli-mianxing.png');
+}
+
+.icon-product-management {
+  background-image: url('/static/icons/CRMEB-shangpinguanli-mianxing.png');
+}
+
+.icon-refund {
+  background-image: url('/static/icons/CRMEB-tuikuanjine-mianxing.png');
+}
+
+.icon-return {
+  background-image: url('/static/icons/CRMEB-tuihuoruku-xianxing.png');
+}
+
+.icon-withdraw {
+  background-image: url('/static/icons/CRMEB-tixianjine-xianxing.png');
+}
+
+.icon-expense {
+  background-image: url('/static/icons/CRMEB-zhichujine-xianxing.png');
+}
+
+.icon-inventory {
+  background-image: url('/static/icons/CRMEB-liangpinrukushuliang-xianxing.png');
+}
+
+.icon-merchant {
+  background-image: url('/static/icons/CRMEB-shanghuruzhu-xianxing.png');
+}
+
+.icon-customer {
+  background-image: url('/static/icons/CRMEB-kehuyunying-xianxing.png');
+}
+
+.icon-user-operation {
+  background-image: url('/static/icons/CRMEB-yonghuyunying-xianxing.png');
+}
+
+.icon-watch {
+  background-image: url('/static/icons/CRMEB-shoubiao1-mianxing.png');
+}
+
+.icon-orange {
+  background-image: url('/static/icons/CRMEB-juzi-xianxing.png');
+}
+
+.icon-add {
+  background-image: url('/static/icons/CRMEB-jia.png');
+}
+
+.icon-miniprogram {
+  background-image: url('/static/icons/CRMEB-xiaochengxu-mianxing.png');
+}
