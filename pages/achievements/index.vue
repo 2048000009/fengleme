@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getMyAchievements, receiveAchievementReward, checkAchievements, type Achievement } from '@/api'
+import { ref, onMounted, onShow } from 'vue'
+import { getMyAchievements, receiveAchievementReward, checkAchievements, type Achievement, isLogin } from '@/api'
 
 const achievements = ref<Achievement[]>([])
 const loading = ref(false)
 const refreshing = ref(false)
+const isLoggedIn = ref(false)
 
 const loadAchievements = async () => {
   try {
@@ -105,38 +106,73 @@ const getConditionText = (achievement: Achievement) => {
   return '完成特定条件'
 }
 
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/auth/login' })
+}
+
+onShow(() => {
+  isLoggedIn.value = isLogin()
+})
+
 onMounted(() => {
-  loadAchievements()
-  checkNewAchievements()
+  isLoggedIn.value = isLogin()
+  if (isLoggedIn.value) {
+    loadAchievements()
+    checkNewAchievements()
+  }
 })
 </script>
 
 <template>
   <view class="container">
-    <view class="header">
-      <text class="header-title">我的成就</text>
-      <view class="header-actions">
-        <view class="refresh-btn" :class="{ refreshing }" @click="checkNewAchievements">
-          <text class="refresh-icon">{{ refreshing ? '⏳' : '🔄' }}</text>
-          <text class="refresh-text">{{ refreshing ? '检查中' : '检查' }}</text>
+    <view v-if="!isLoggedIn" class="login-prompt">
+      <view class="user-card">
+        <view class="avatar">
+          <text class="avatar-text">疯</text>
+        </view>
+        <view class="user-info">
+          <text class="nickname">匿名疯友</text>
+          <text class="user-id">体验模式，数据仅保存在本地</text>
+        </view>
+      </view>
+      <view class="login-btn-container">
+        <view class="login-btn" @click="goToLogin">
+          <text class="login-btn-text">立即登录</text>
+        </view>
+      </view>
+      <view class="menu-card">
+        <view class="prompt-desc">
+          <text class="prompt-icon">🏆</text>
+          <text class="prompt-text">登录后才能查看成就系统</text>
         </view>
       </view>
     </view>
+    
+    <template v-else>
+      <view class="header">
+        <text class="header-title">我的成就</text>
+        <view class="header-actions">
+          <view class="refresh-btn" :class="{ refreshing }" @click="checkNewAchievements">
+            <text class="refresh-icon">{{ refreshing ? '⏳' : '🔄' }}</text>
+            <text class="refresh-text">{{ refreshing ? '检查中' : '检查' }}</text>
+          </view>
+        </view>
+      </view>
 
-    <view v-if="loading" class="loading-state">
-      <text class="loading-text">加载中...</text>
-    </view>
+      <view v-if="loading" class="loading-state">
+        <text class="loading-text">加载中...</text>
+      </view>
 
-    <view v-else class="achievement-list">
-      <view
-        v-for="achievement in achievements"
-        :key="achievement.id"
-        class="achievement-item"
-        :class="{
-          'achieved': achievement.is_achieved,
-          'not-achieved': !achievement.is_achieved
-        }"
-      >
+      <view v-else class="achievement-list">
+        <view
+          v-for="achievement in achievements"
+          :key="achievement.id"
+          class="achievement-item"
+          :class="{
+            'achieved': achievement.is_achieved,
+            'not-achieved': !achievement.is_achieved
+          }"
+        >
         <view class="achievement-icon">
           <text class="icon-emoji">{{ achievement.icon }}</text>
           <view v-if="!achievement.is_achieved" class="lock-overlay">
@@ -176,6 +212,7 @@ onMounted(() => {
         </view>
       </view>
     </view>
+    </template>
   </view>
 </template>
 
@@ -187,6 +224,110 @@ onMounted(() => {
   padding-top: calc(30rpx + constant(safe-area-inset-top));
   padding-top: calc(30rpx + env(safe-area-inset-top));
   padding-bottom: 30rpx;
+}
+
+.login-prompt {
+  padding: 40rpx 32rpx;
+}
+
+.user-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 32rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.avatar-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+}
+
+.user-id {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.login-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(34, 215, 255, 0.3);
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.login-btn-text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.menu-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin: 0 0 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding: 32rpx;
+}
+
+.prompt-desc {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.prompt-icon {
+  font-size: 40rpx;
+}
+
+.prompt-text {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
 }
 
 .header {

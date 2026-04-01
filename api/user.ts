@@ -122,3 +122,13 @@ export const changePassword = (data: {
 }) => {
   return post('/api/user/changePassword', data)
 }
+
+export const syncAnonymousData = (data: {
+  continuousDays: number
+  totalDays: number
+  crazyPoints: number
+  level: string
+  lastCheckinDate: string
+}) => {
+  return post('/api/user/syncAnonymousData', data)
+}

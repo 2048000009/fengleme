@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { storage } from '@/utils/storage'
 import { login, setToken, sendSmsCode, loginBySms } from '@/api'
+import { syncToServer, hasAnonymousData } from '@/utils/anonymousSync'
 
 type LoginType = 'password' | 'sms'
 
@@ -71,6 +72,12 @@ const handlePasswordLogin = async () => {
     setToken(res.data.token)
     storage.set('fengleme_user_info', res.data.userInfo)
     
+    if (hasAnonymousData()) {
+      uni.showLoading({ title: '同步数据中...' })
+      await syncToServer()
+      uni.hideLoading()
+    }
+    
     uni.showToast({ title: '登录成功', icon: 'success' })
     
     setTimeout(() => {
@@ -96,6 +103,12 @@ const handleSmsLogin = async () => {
     
     setToken(res.data.token)
     storage.set('fengleme_user_info', res.data.userInfo)
+    
+    if (hasAnonymousData()) {
+      uni.showLoading({ title: '同步数据中...' })
+      await syncToServer()
+      uni.hideLoading()
+    }
     
     if (res.data.isNewUser) {
       uni.showToast({ title: '注册成功', icon: 'success' })

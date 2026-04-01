@@ -172,18 +172,34 @@ const getTimeSinceUpdate = () => {
   return `${days}天前`
 }
 
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/auth/login' })
+}
+
 onMounted(() => {
+  isLoggedIn.value = isLogin()
   // 初始加载数据
-  loadRankingData()
+  if (isLoggedIn.value) {
+    loadRankingData()
+  }
   
   // 设置自动刷新定时器
   refreshTimer = setInterval(() => {
-    const now = Date.now()
-    const diff = now - lastUpdateTime.value
-    if (diff >= 5 * 60 * 1000) {
-      loadRankingData()
+    if (isLoggedIn.value) {
+      const now = Date.now()
+      const diff = now - lastUpdateTime.value
+      if (diff >= 5 * 60 * 1000) {
+        loadRankingData()
+      }
     }
   }, 60 * 1000) as unknown as number
+})
+
+onShow(() => {
+  isLoggedIn.value = isLogin()
+  if (isLoggedIn.value && currentRanking.value.length === 0) {
+    loadRankingData()
+  }
 })
 
 onUnmounted(() => {
@@ -225,13 +241,37 @@ const getLevelColor = (level: number) => {
 
 <template>
   <view class="container">
-    <view class="bg-layer">
-      <view class="gradient-blob blob-1"></view>
-      <view class="gradient-blob blob-2"></view>
-      <view class="gradient-blob blob-3"></view>
+    <view v-if="!isLoggedIn" class="login-prompt">
+      <view class="user-card">
+        <view class="avatar">
+          <text class="avatar-text">疯</text>
+        </view>
+        <view class="user-info">
+          <text class="nickname">匿名疯友</text>
+          <text class="user-id">体验模式，数据仅保存在本地</text>
+        </view>
+      </view>
+      <view class="login-btn-container">
+        <view class="login-btn" @click="goToLogin">
+          <text class="login-btn-text">立即登录</text>
+        </view>
+      </view>
+      <view class="menu-card">
+        <view class="prompt-desc">
+          <text class="prompt-icon">🏆</text>
+          <text class="prompt-text">登录后才能查看排行榜</text>
+        </view>
+      </view>
     </view>
     
-    <view class="content">
+    <template v-else>
+      <view class="bg-layer">
+        <view class="gradient-blob blob-1"></view>
+        <view class="gradient-blob blob-2"></view>
+        <view class="gradient-blob blob-3"></view>
+      </view>
+      
+      <view class="content">
       <view class="header">
         <view class="header-left">
           <text class="header-title">发疯排行榜</text>
@@ -426,6 +466,7 @@ const getLevelColor = (level: number) => {
         </view>
       </view>
     </view>
+    </template>
   </view>
 </template>
 
@@ -434,6 +475,112 @@ const getLevelColor = (level: number) => {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+}
+
+.login-prompt {
+  padding: 40rpx 32rpx;
+  min-height: 100vh;
+  background: #F5F5F7;
+}
+
+.login-prompt .user-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 32rpx;
+}
+
+.login-prompt .avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.login-prompt .avatar-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.login-prompt .user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-prompt .nickname {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+}
+
+.login-prompt .user-id {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.login-prompt .login-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.login-prompt .login-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(34, 215, 255, 0.3);
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.login-prompt .login-btn-text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.login-prompt .menu-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin: 0 0 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding: 32rpx;
+}
+
+.login-prompt .prompt-desc {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.login-prompt .prompt-icon {
+  font-size: 40rpx;
+}
+
+.login-prompt .prompt-text {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
 }
 
 .bg-layer {
