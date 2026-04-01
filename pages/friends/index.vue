@@ -9,7 +9,9 @@ import {
   type Contact 
 } from '@/api/rescue'
 import { validatePhone, validateRequired } from '@/utils/validate'
+import { isLogin } from '@/api'
 
+const isLoggedIn = ref(false)
 const contacts = ref<Contact[]>([])
 const showAddModal = ref(false)
 const editingContact = ref<Contact | null>(null)
@@ -60,6 +62,13 @@ const safeContacts = computed(() => {
 })
 
 const loadContacts = async () => {
+  isLoggedIn.value = isLogin()
+  if (!isLoggedIn.value) {
+    contacts.value = []
+    loading.value = false
+    return
+  }
+  
   try {
     loading.value = true
     const data = await getContacts()
@@ -206,23 +215,10 @@ const handleSendSOS = async () => {
       if (res.confirm) {
         try {
           sendingSOS.value = true
-          
-          let location = undefined
-          try {
-            const locRes = await uni.getLocation({ type: 'gcj02' })
-            location = {
-              lat: locRes.latitude,
-              lng: locRes.longitude,
-              address: ''
-            }
-          } catch (e) {
-            console.log('获取位置失败')
-          }
 
           await sendSOS({
             contacts: contacts.value.map(c => c.phone),
-            location,
-            message: '我在紧急情况下需要帮助，请尽快联系我！'
+            message: '我已发疯，需要紧急帮助，请尽快联系我！'
           })
 
           uni.showToast({
@@ -245,104 +241,133 @@ const handleSendSOS = async () => {
 onMounted(() => {
   loadContacts()
 })
+
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/auth/login' })
+}
 </script>
 
 <template>
   <view class="container">
-    <view class="hero-section">
-      <text class="hero-icon">🚨</text>
-      <text class="hero-title">疯友急救中心</text>
-      <text class="hero-subtitle">紧急心理援助与互助</text>
-    </view>
-
-    <view class="sos-card">
-      <view class="sos-wrapper">
-        <view 
-          class="sos-btn" 
-          :class="{ sending: sendingSOS }" 
-          @click="handleSOSClick"
-          @longpress="handleSendSOS"
-        >
-          <text class="sos-main">SOS</text>
+    <view v-if="!isLoggedIn" class="login-prompt">
+      <view class="user-card">
+        <view class="avatar">
+          <text class="avatar-text">疯</text>
         </view>
-        
-        <view 
-          v-if="showTextAnimation" 
-          class="crazy-text"
-          :style="{ transform: `translate(${textPosition.x}px, ${textPosition.y}px)` }"
-        >
-          {{ currentCrazyText }}
+        <view class="user-info">
+          <text class="nickname">匿名疯友</text>
+          <text class="user-id">体验模式，数据仅保存在本地</text>
         </view>
       </view>
-      <text class="sos-tip">点击发疯 · 长按发送SOS</text>
-    </view>
-
-    <view class="contacts-card">
-      <view class="section-header">
-        <text class="section-prefix">📱</text>
-        <text class="section-title">一、疯友急救</text>
-      </view>
-      <text class="section-desc">一键呼叫信任的疯友，获取及时支援</text>
-
-      <view v-if="loading" class="loading-state">
-        <text class="loading-text">加载中...</text>
-      </view>
-
-      <view v-else-if="contacts.length === 0" class="empty-state">
-        <text class="empty-icon">📱</text>
-        <text class="empty-text">暂无疯友联系人</text>
-        <text class="empty-desc">添加联系人，关键时刻帮到你</text>
-      </view>
-
-      <view v-else class="contact-list">
-        <view v-for="contact in safeContacts" :key="contact.id" class="contact-item">
-          <view class="contact-avatar">{{ getInitial(contact.name) }}</view>
-          <view class="contact-info">
-            <text class="contact-name">{{ getSafeName(contact.name) }}</text>
-            <text class="contact-meta">{{ contact.relationship || '疯友' }}</text>
-          </view>
-          <view class="contact-phone">
-            <text class="phone-text">{{ contact.phone ? contact.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '' }}</text>
-          </view>
-          <view class="contact-actions">
-            <text class="action-edit" @click="openEditModal(contact)">编辑</text>
-            <text class="action-delete" @click="handleDeleteContact(contact.id)">删除</text>
-          </view>
+      <view class="login-btn-container">
+        <view class="login-btn" @click="goToLogin">
+          <text class="login-btn-text">立即登录</text>
         </view>
       </view>
-
-      <view class="add-btn" @click="openAddModal">
-        <text class="add-icon">+</text>
-        <text class="add-text">添加紧急联系人</text>
-      </view>
-    </view>
-
-    <view v-if="showAddModal" class="modal-overlay" @click="closeAddModal">
-      <view class="modal-content" @click.stop>
-        <view class="modal-header">
-          <text class="modal-title">{{ editingContact ? '编辑联系人' : '添加联系人' }}</text>
-          <text class="modal-close" @click="closeAddModal">×</text>
-        </view>
-        <view class="modal-body">
-          <view class="form-item">
-            <text class="form-label">姓名</text>
-            <input class="form-input" v-model="formData.name" placeholder="请输入姓名" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">电话</text>
-            <input class="form-input" v-model="formData.phone" type="number" placeholder="请输入电话" />
-          </view>
-          <view class="form-item">
-            <text class="form-label">关系</text>
-            <input class="form-input" v-model="formData.relationship" placeholder="如：疯友、家人" />
-          </view>
-        </view>
-        <view class="modal-footer">
-          <button class="modal-btn cancel" @click="closeAddModal">取消</button>
-          <button class="modal-btn confirm" @click="saveContact">保存</button>
+      <view class="menu-card">
+        <view class="prompt-desc">
+          <text class="prompt-icon">🚨</text>
+          <text class="prompt-text">登录后才能使用疯友急救功能</text>
         </view>
       </view>
     </view>
+    
+    <template v-else>
+      <view class="hero-section">
+        <text class="hero-icon">🚨</text>
+        <text class="hero-title">疯友急救中心</text>
+        <text class="hero-subtitle">紧急心理援助与互助</text>
+      </view>
+
+      <view class="sos-card">
+        <view class="sos-wrapper">
+          <view 
+            class="sos-btn" 
+            :class="{ sending: sendingSOS }" 
+            @click="handleSOSClick"
+            @longpress="handleSendSOS"
+          >
+            <text class="sos-main">SOS</text>
+          </view>
+          
+          <view 
+            v-if="showTextAnimation" 
+            class="crazy-text"
+            :style="{ transform: `translate(${textPosition.x}px, ${textPosition.y}px)` }"
+          >
+            {{ currentCrazyText }}
+          </view>
+        </view>
+        <text class="sos-tip">点击发疯 · 长按发送SOS</text>
+      </view>
+
+      <view class="contacts-card">
+        <view class="section-header">
+          <text class="section-prefix">📱</text>
+          <text class="section-title">一、疯友急救</text>
+        </view>
+        <text class="section-desc">一键呼叫信任的疯友，获取及时支援</text>
+
+        <view v-if="loading" class="loading-state">
+          <text class="loading-text">加载中...</text>
+        </view>
+
+        <view v-else-if="contacts.length === 0" class="empty-state">
+          <text class="empty-icon">📱</text>
+          <text class="empty-text">暂无疯友联系人</text>
+          <text class="empty-desc">添加联系人，关键时刻帮到你</text>
+        </view>
+
+        <view v-else class="contact-list">
+          <view v-for="contact in safeContacts" :key="contact.id" class="contact-item">
+            <view class="contact-avatar">{{ getInitial(contact.name) }}</view>
+            <view class="contact-info">
+              <text class="contact-name">{{ getSafeName(contact.name) }}</text>
+              <text class="contact-meta">{{ contact.relationship || '疯友' }}</text>
+            </view>
+            <view class="contact-phone">
+              <text class="phone-text">{{ contact.phone ? contact.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '' }}</text>
+            </view>
+            <view class="contact-actions">
+              <text class="action-edit" @click="openEditModal(contact)">编辑</text>
+              <text class="action-delete" @click="handleDeleteContact(contact.id)">删除</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="add-btn" @click="openAddModal">
+          <text class="add-icon">+</text>
+          <text class="add-text">添加紧急联系人</text>
+        </view>
+      </view>
+
+      <view v-if="showAddModal" class="modal-overlay" @click="closeAddModal">
+        <view class="modal-content" @click.stop>
+          <view class="modal-header">
+            <text class="modal-title">{{ editingContact ? '编辑联系人' : '添加联系人' }}</text>
+            <text class="modal-close" @click="closeAddModal">×</text>
+          </view>
+          <view class="modal-body">
+            <view class="form-item">
+              <text class="form-label">姓名</text>
+              <input class="form-input" v-model="formData.name" placeholder="请输入姓名" />
+            </view>
+            <view class="form-item">
+              <text class="form-label">电话</text>
+              <input class="form-input" v-model="formData.phone" type="number" placeholder="请输入电话" />
+            </view>
+            <view class="form-item">
+              <text class="form-label">关系</text>
+              <input class="form-input" v-model="formData.relationship" placeholder="如：疯友、家人" />
+            </view>
+          </view>
+          <view class="modal-footer">
+            <button class="modal-btn cancel" @click="closeAddModal">取消</button>
+            <button class="modal-btn confirm" @click="saveContact">保存</button>
+          </view>
+        </view>
+      </view>
+    </template>
   </view>
 </template>
 
@@ -351,6 +376,110 @@ onMounted(() => {
   min-height: 100vh;
   background: #f5f5f5;
   padding-bottom: 60rpx;
+}
+
+.login-prompt {
+  padding: 40rpx 32rpx;
+}
+
+.user-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 32rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.avatar-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+}
+
+.user-id {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.login-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 77, 79, 0.3);
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.login-btn-text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.menu-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin: 0 0 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding: 32rpx;
+}
+
+.prompt-desc {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.prompt-icon {
+  font-size: 40rpx;
+}
+
+.prompt-text {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
 }
 
 .hero-section {

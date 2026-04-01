@@ -19,6 +19,24 @@
       }
     },
     {
+      "path": "pages/task/index",
+      "style": {
+        "navigationBarTitleText": "任务中心",
+        "navigationBarBackgroundColor": "#22D7FF",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#22D7FF",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
+    },
+    {
       "path": "pages/auth/login",
       "style": {
         "navigationBarTitleText": "登录",
@@ -68,24 +86,6 @@
             "titleColor": "#ffffff"
           },
           "animationType": "slide-in-right",
-          "animationDuration": 250
-        }
-      }
-    },
-    {
-      "path": "pages/auth/wechat-callback",
-      "style": {
-        "navigationBarTitleText": "微信登录",
-        "navigationBarBackgroundColor": "#22D7FF",
-        "navigationBarTextStyle": "white",
-        "enablePullDownRefresh": false,
-        "lazyCodeLoading": "requiredComponents",
-        "app-plus": {
-          "titleNView": {
-            "backgroundColor": "#22D7FF",
-            "titleColor": "#ffffff"
-          },
-          "animationType": "pop-in",
           "animationDuration": 250
         }
       }
@@ -413,6 +413,24 @@
           "animationDuration": 250
         }
       }
+    },
+    {
+      "path": "pages/faq/index",
+      "style": {
+        "navigationBarTitleText": "常见问题",
+        "navigationBarBackgroundColor": "#22D7FF",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false,
+        "lazyCodeLoading": "requiredComponents",
+        "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#22D7FF",
+            "titleColor": "#ffffff"
+          },
+          "animationType": "slide-in-right",
+          "animationDuration": 250
+        }
+      }
     }
   ],
   "globalStyle": {
@@ -438,26 +456,26 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "static/tabbar/home.svg",
-        "selectedIconPath": "static/tabbar/home-active.svg"
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/mood/index",
         "text": "签到设置",
-        "iconPath": "static/tabbar/mood.svg",
-        "selectedIconPath": "static/tabbar/mood-active.svg"
+        "iconPath": "static/tabbar/mood.png",
+        "selectedIconPath": "static/tabbar/mood-active.png"
       },
       {
         "pagePath": "pages/friends/index",
         "text": "疯友院",
-        "iconPath": "static/tabbar/rescue.svg",
-        "selectedIconPath": "static/tabbar/rescue-active.svg"
+        "iconPath": "static/tabbar/rescue.png",
+        "selectedIconPath": "static/tabbar/rescue-active.png"
       },
       {
         "pagePath": "pages/mine/index",
         "text": "我的",
-        "iconPath": "static/tabbar/mine.svg",
-        "selectedIconPath": "static/tabbar/mine-active.svg"
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mine-active.png"
       }
     ],
     "app-plus": {

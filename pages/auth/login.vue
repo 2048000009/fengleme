@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { storage } from '@/utils/storage'
-import { login, setToken, sendSmsCode, loginBySms, getWechatOAuthUrl, wechatMiniLogin } from '@/api'
+import { login, setToken, sendSmsCode, loginBySms } from '@/api'
 
 type LoginType = 'password' | 'sms'
 
@@ -163,41 +163,6 @@ const goToRegister = () => {
 const forgotPassword = () => {
   uni.navigateTo({ url: '/pages/auth/forgot-password' })
 }
-
-const handleWechatLogin = async () => {
-  // #ifdef H5
-  try {
-    const res = await getWechatOAuthUrl()
-    if (res.data && res.data.oauth_url) {
-      window.location.href = res.data.oauth_url
-    }
-  } catch (e: any) {
-    uni.showToast({ title: e.message || '获取授权链接失败', icon: 'none' })
-  }
-  // #endif
-  
-  // #ifdef MP-WEIXIN
-  uni.login({
-    provider: 'weixin',
-    success: async (loginRes) => {
-      try {
-        const res = await wechatMiniLogin(loginRes.code)
-        setToken(res.data.token)
-        storage.set('fengleme_user_info', res.data.userInfo)
-        uni.showToast({ title: '登录成功', icon: 'success' })
-        setTimeout(() => {
-          uni.switchTab({ url: '/pages/index/index' })
-        }, 1500)
-      } catch (e: any) {
-        uni.showToast({ title: e.message || '登录失败', icon: 'none' })
-      }
-    },
-    fail: () => {
-      uni.showToast({ title: '微信授权失败', icon: 'none' })
-    }
-  })
-  // #endif
-}
 </script>
 
 <template>
@@ -288,19 +253,6 @@ const handleWechatLogin = async () => {
       <view class="btn-container">
         <view class="btn primary" :class="{ disabled: loading }" @click="handleLogin">
           <text class="btn-text">{{ loading ? '登录中...' : '立即登录' }}</text>
-        </view>
-      </view>
-      
-      <view class="divider">
-        <view class="divider-line"></view>
-        <text class="divider-text">其他登录方式</text>
-        <view class="divider-line"></view>
-      </view>
-      
-      <view class="third-party-login">
-        <view class="third-party-btn" @click="handleWechatLogin">
-          <text class="third-party-icon">💬</text>
-          <text class="third-party-text">微信登录</text>
         </view>
       </view>
       
@@ -513,50 +465,6 @@ const handleWechatLogin = async () => {
   font-size: 32rpx;
   color: #FFFFFF;
   font-weight: 600;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  margin: 40rpx 0;
-}
-
-.divider-line {
-  flex: 1;
-  height: 1rpx;
-  background: #E5E5E5;
-}
-
-.divider-text {
-  padding: 0 24rpx;
-  font-size: 24rpx;
-  color: #999999;
-}
-
-.third-party-login {
-  display: flex;
-  justify-content: center;
-  gap: 40rpx;
-}
-
-.third-party-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12rpx;
-  
-  &:active {
-    opacity: 0.8;
-  }
-}
-
-.third-party-icon {
-  font-size: 64rpx;
-}
-
-.third-party-text {
-  font-size: 24rpx;
-  color: #666666;
 }
 
 .register-link {

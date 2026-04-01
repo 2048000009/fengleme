@@ -38,11 +38,6 @@ export interface LoginResult {
   isNewUser?: boolean
 }
 
-export interface WechatOAuthResult {
-  oauth_url: string
-  state: string
-}
-
 export const register = (data: {
   nickname: string
   phone: string
@@ -69,26 +64,6 @@ export const loginBySms = (phone: string, code: string) => {
 
 export const resetPassword = (phone: string, code: string, newPassword: string, confirmPassword: string) => {
   return post('/api/auth/resetPassword', { phone, code, newPassword, confirmPassword })
-}
-
-export const getWechatOAuthUrl = (redirectUri?: string) => {
-  return post<WechatOAuthResult>('/api/auth/getWechatOAuthUrl', { redirect_uri: redirectUri })
-}
-
-export const wechatLogin = (code: string, state?: string) => {
-  return post<LoginResult>('/api/auth/wechatLogin', { code, state })
-}
-
-export const wechatMiniLogin = (code: string) => {
-  return post<LoginResult>('/api/auth/wechatMiniLogin', { code })
-}
-
-export const bindWechat = (code: string) => {
-  return post('/api/auth/bindWechat', { code })
-}
-
-export const unbindWechat = () => {
-  return post('/api/auth/unbindWechat')
 }
 
 export const getUserInfo = () => {

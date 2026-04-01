@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getCheckinSettings, saveCheckinSettings, type CheckinSettings } from '@/api/user'
+import { isLogin } from '@/api'
 
+const isLoggedIn = ref(false)
 const safetyDays = ref(3)
 const reminderEnabled = ref(true)
 const reminderTime = ref('20:30')
 const reminderMethod = ref<'email' | 'push'>('push')
 const isLoading = ref(false)
 const isSaving = ref(false)
+const hasChanges = ref(false)
 
 const loadSettings = async () => {
+  isLoggedIn.value = isLogin()
+  if (!isLoggedIn.value) {
+    isLoading.value = false
+    return
+  }
+  
   isLoading.value = true
   try {
     const res = await getCheckinSettings()
@@ -43,6 +52,7 @@ const saveSettings = async () => {
       title: '保存成功',
       icon: 'success'
     })
+    hasChanges.value = false
   } catch (error) {
     console.error('保存设置失败:', error)
     uni.showToast({
@@ -58,12 +68,12 @@ const onSafetyDaysChange = (e: any) => {
   safetyDays.value = Math.round(e.detail.value / 16.67) + 1
   if (safetyDays.value < 1) safetyDays.value = 1
   if (safetyDays.value > 7) safetyDays.value = 7
-  saveSettings()
+  hasChanges.value = true
 }
 
 const onReminderToggle = () => {
   reminderEnabled.value = !reminderEnabled.value
-  saveSettings()
+  hasChanges.value = true
 }
 
 const onTimeClick = () => {
@@ -72,24 +82,51 @@ const onTimeClick = () => {
     success: (res) => {
       const times = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30']
       reminderTime.value = times[res.tapIndex]
-      saveSettings()
+      hasChanges.value = true
     }
   })
 }
 
 const selectReminderMethod = (method: 'email' | 'push') => {
   reminderMethod.value = method
-  saveSettings()
+  hasChanges.value = true
 }
 
 onMounted(() => {
   loadSettings()
 })
+
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/auth/login' })
+}
 </script>
 
 <template>
   <view class="container">
-    <view class="content">
+    <view v-if="!isLoggedIn" class="login-prompt">
+      <view class="user-card">
+        <view class="avatar">
+          <text class="avatar-text">疯</text>
+        </view>
+        <view class="user-info">
+          <text class="nickname">匿名疯友</text>
+          <text class="user-id">体验模式，数据仅保存在本地</text>
+        </view>
+      </view>
+      <view class="login-btn-container">
+        <view class="login-btn" @click="goToLogin">
+          <text class="login-btn-text">立即登录</text>
+        </view>
+      </view>
+      <view class="menu-card">
+        <view class="prompt-desc">
+          <text class="prompt-icon">⚙️</text>
+          <text class="prompt-text">登录后才能设置签到提醒</text>
+        </view>
+      </view>
+    </view>
+    
+    <view v-else class="content">
       <view class="card">
         <view class="card-title">安全天数设置</view>
         <view class="card-subtitle">超过此天数未签到将通知紧急联系人</view>
@@ -171,6 +208,17 @@ onMounted(() => {
           </view>
         </view>
       </view>
+
+      <view class="save-section">
+        <button 
+          class="save-btn" 
+          :class="{ 'has-changes': hasChanges, 'saving': isSaving }"
+          @click="saveSettings"
+          :disabled="!hasChanges || isSaving"
+        >
+          <text class="save-btn-text">{{ isSaving ? '保存中...' : '保存设置' }}</text>
+        </button>
+      </view>
     </view>
   </view>
 </template>
@@ -181,6 +229,110 @@ onMounted(() => {
   background: #F5F5F7;
   padding-top: calc(32rpx + constant(safe-area-inset-top));
   padding-top: calc(32rpx + env(safe-area-inset-top));
+}
+
+.login-prompt {
+  padding: 40rpx 32rpx;
+}
+
+.user-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 32rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.avatar-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+}
+
+.user-id {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.login-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #22D7FF 0%, #00C8EB 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(34, 215, 255, 0.3);
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.login-btn-text {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.menu-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin: 0 0 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding: 32rpx;
+}
+
+.prompt-desc {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.prompt-icon {
+  font-size: 40rpx;
+}
+
+.prompt-text {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
 }
 
 .content {
@@ -367,5 +519,47 @@ onMounted(() => {
   height: 24rpx;
   background: #22D7FF;
   border-radius: 50%;
+}
+
+.save-section {
+  margin-top: 40rpx;
+  padding-bottom: 40rpx;
+}
+
+.save-btn {
+  width: 100%;
+  height: 96rpx;
+  background: #E5E5EA;
+  border-radius: 20rpx;
+  border: none;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #8E8E93;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+  pointer-events: none;
+
+  &.has-changes {
+    background: #22D7FF;
+    color: #ffffff;
+    opacity: 1;
+    pointer-events: auto;
+    box-shadow: 0 4rpx 12rpx rgba(34, 215, 255, 0.3);
+
+    &:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+  }
+
+  &.saving {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+.save-btn-text {
+  font-size: 32rpx;
+  font-weight: 600;
 }
 </style>

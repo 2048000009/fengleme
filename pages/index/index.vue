@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onShow } from 'vue'
 import { login, getUserInfo, setToken, getToken, isLogin } from '@/api'
 import { getCheckinStats, doCheckin } from '@/api'
+import { storage } from '@/utils/storage'
+import taskSystem from '@/utils/taskSystem'
 
 const isCheckedIn = ref(false)
 const showQuoteModal = ref(false)
@@ -38,6 +40,29 @@ const loadData = async () => {
       const statsRes = await getCheckinStats()
       checkinStats.value = statsRes.data
       isCheckedIn.value = statsRes.data.isCheckedIn
+    } else {
+      // 加载匿名用户数据
+      const anonymousData = storage.get('fengleme_anonymous_data')
+      if (anonymousData) {
+        checkinStats.value = {
+          continuousDays: anonymousData.continuousDays || 0,
+          totalDays: anonymousData.totalDays || 0,
+          crazyPoints: anonymousData.crazyPoints || 0,
+          level: anonymousData.level || '初入疯途',
+          isCheckedIn: anonymousData.isCheckedIn || false
+        }
+        isCheckedIn.value = anonymousData.isCheckedIn || false
+      } else {
+        // 初始化匿名用户数据
+        checkinStats.value = {
+          continuousDays: 0,
+          totalDays: 0,
+          crazyPoints: 0,
+          level: '初入疯途',
+          isCheckedIn: false
+        }
+        isCheckedIn.value = false
+      }
     }
   } catch (e) {
     console.error('加载数据失败', e)
@@ -47,29 +72,85 @@ const loadData = async () => {
 const checkIn = async () => {
   if (isCheckedIn.value) return
   
-  if (!isLogin()) {
-    uni.showToast({
-      title: '请先登录',
-      icon: 'none',
-      duration: 2000
-    })
-    setTimeout(() => {
-      uni.switchTab({ url: '/pages/mine/index' })
-    }, 1500)
-    return
-  }
-  
   loading.value = true
   try {
-    const res = await doCheckin()
-    checkinResult.value = res.data
-    isCheckedIn.value = true
-    
-    // 更新统计
-    checkinStats.value.continuousDays = res.data.continuousDays
-    checkinStats.value.totalDays = res.data.totalDays
-    checkinStats.value.crazyPoints = res.data.crazyPoints
-    checkinStats.value.level = res.data.level
+    if (isLogin()) {
+      // 登录用户签到
+      const res = await doCheckin()
+      checkinResult.value = res.data
+      isCheckedIn.value = true
+      
+      // 更新签到到任务系统
+      taskSystem.completeTask('signIn')
+      
+      // 更新统计
+      checkinStats.value.continuousDays = res.data.continuousDays
+      checkinStats.value.totalDays = res.data.totalDays
+      checkinStats.value.crazyPoints = res.data.crazyPoints
+      checkinStats.value.level = res.data.level
+    } else {
+      // 匿名用户签到
+      const anonymousData = storage.get('fengleme_anonymous_data') || {
+        continuousDays: 0,
+        totalDays: 0,
+        crazyPoints: 0,
+        level: '初入疯途',
+        isCheckedIn: false,
+        lastCheckinDate: ''
+      }
+      
+      // 计算连续签到天数
+      const today = new Date().toISOString().split('T')[0]
+      let continuousDays = anonymousData.continuousDays
+      if (anonymousData.lastCheckinDate) {
+        const lastDate = new Date(anonymousData.lastCheckinDate)
+        const todayDate = new Date(today)
+        const diffDays = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+        
+        if (diffDays === 1) {
+          continuousDays++
+        } else if (diffDays > 1) {
+          continuousDays = 1
+        }
+      } else {
+        continuousDays = 1
+      }
+      
+      // 更新数据
+      const points = 15 // 固定奖励15疯度
+      const newData = {
+        continuousDays,
+        totalDays: anonymousData.totalDays + 1,
+        crazyPoints: anonymousData.crazyPoints + points,
+        level: getAnonymousLevel(anonymousData.crazyPoints + points),
+        isCheckedIn: true,
+        lastCheckinDate: today
+      }
+      
+      // 保存数据
+      storage.set('fengleme_anonymous_data', newData)
+      
+      // 更新界面
+      checkinResult.value = {
+        continuousDays: newData.continuousDays,
+        totalDays: newData.totalDays,
+        crazyPoints: newData.crazyPoints,
+        level: newData.level,
+        points,
+        message: `连续签到${newData.continuousDays}天！`,
+        todayRank: Math.floor(Math.random() * 100) + 1
+      }
+      
+      isCheckedIn.value = true
+      checkinStats.value = {
+        ...checkinStats.value,
+        continuousDays: newData.continuousDays,
+        totalDays: newData.totalDays,
+        crazyPoints: newData.crazyPoints,
+        level: newData.level,
+        isCheckedIn: true
+      }
+    }
     
     const randomCertIndex = Math.floor(Math.random() * certificationQuotes.length)
     certificationText.value = certificationQuotes[randomCertIndex]
@@ -85,6 +166,15 @@ const checkIn = async () => {
   }
 }
 
+const getAnonymousLevel = (points: number): string => {
+  if (points >= 1000) return '疯魔在世'
+  if (points >= 500) return '疯癫大师'
+  if (points >= 200) return '半疯半癫'
+  if (points >= 100) return '初露疯芒'
+  if (points >= 50) return '疯途新秀'
+  return '初入疯途'
+}
+
 const closeCertification = () => {
   showCertification.value = false
   setTimeout(() => {
@@ -97,6 +187,10 @@ const closeModal = () => {
 }
 
 onMounted(() => {
+  loadData()
+})
+
+onShow(() => {
   loadData()
 })
 </script>
