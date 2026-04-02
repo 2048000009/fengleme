@@ -86,16 +86,16 @@ const loadData = async (forceRefresh: boolean = false) => {
     
     if (isLogin()) {
       const userRes = await getUserInfo()
-      userInfo.value = userRes.data
-      
+      userInfo.value = userRes?.data || null
+
       const statsRes = await getCheckinStats()
-      checkinStats.value = statsRes.data
-      isCheckedIn.value = statsRes.data.isCheckedIn
+      checkinStats.value = statsRes?.data || null
+      isCheckedIn.value = statsRes?.data?.isCheckedIn || false
       
       saveToCache({
-        stats: statsRes.data,
-        isCheckedIn: statsRes.data.isCheckedIn,
-        userInfo: userRes.data
+        stats: statsRes?.data || {},
+        isCheckedIn: statsRes?.data?.isCheckedIn || false,
+        userInfo: userRes?.data || null
       })
     } else {
       const anonymousData = storage.get('fengleme_anonymous_data')

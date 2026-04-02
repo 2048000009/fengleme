@@ -1,4 +1,5 @@
 import { get } from '@/utils/request'
+import { BASE_URL } from '@/utils/config'
 
 export interface UploadResult {
   url: string
@@ -8,7 +9,7 @@ export interface UploadResult {
 export const uploadFile = (filePath: string): Promise<UploadResult> => {
   return new Promise((resolve, reject) => {
     uni.uploadFile({
-      url: 'https://flm.lvafan.cn/api/common/upload',
+      url: BASE_URL + '/api/common/upload',
       filePath,
       name: 'file',
       success: (res: any) => {

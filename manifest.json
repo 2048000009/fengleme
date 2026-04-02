@@ -15,18 +15,35 @@
             "autoclose" : true,
             "delay" : 0
         },
-        "modules" : {},
+        "modules" : {
+            "Push" : {},
+            "Geolocation" : {}
+        },
         "distribute" : {
             "android" : {
-                "permissions" : [],
+                "permissions" : [
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>"
+                ],
                 "minSdkVersion" : 21,
                 "targetSdkVersion" : 30,
                 "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ]
             },
             "ios" : {
                 "plist" : {
-                    "NSCameraUsageDescription" : "需要访问您的相机",
-                    "NSPhotoLibraryUsageDescription" : "需要访问您的相册",
+                    "NSCameraUsageDescription" : "需要访问您的相机以拍摄头像或上传图片",
+                    "NSPhotoLibraryUsageDescription" : "需要访问您的相册以选择头像或上传图片",
+                    "NSLocationWhenInUseUsageDescription" : "需要获取您的位置信息以便在紧急情况下发送求助",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "需要获取您的位置信息以便在紧急情况下发送求助",
                     "UIStatusBarStyle" : "UIStatusBarStyleDefault"
                 },
                 "dSYMs" : false

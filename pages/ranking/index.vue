@@ -4,6 +4,7 @@ import { storage } from '@/utils/storage'
 import taskSystem from '@/utils/taskSystem'
 import { STORAGE_KEYS } from '@/utils/constants'
 import { getRankingList, getMyRank } from '@/api'
+import { isLogin } from '@/api'
 
 type TabType = 'points' | 'mood' | 'risk' | 'lying'
 
@@ -34,6 +35,7 @@ const lastUpdateTime = ref(Date.now())
 const isRefreshing = ref(false)
 const isLoading = ref(false)
 const loadingError = ref<string | null>(null)
+const isLoggedIn = ref(false)
 let refreshTimer: number | null = null
 
 const tabs = [
@@ -224,7 +226,7 @@ const getScoreColor = (score: number) => {
 
 const getTabColor = computed(() => {
   const tab = tabs.find(t => t.id === currentTab.value)
-  if (tab?.id === 'crazy') return 'rgba(239, 68, 68, 0.85)'
+  if (tab?.id === 'points') return 'rgba(251, 191, 36, 0.85)'
   if (tab?.id === 'mood') return 'rgba(102, 126, 234, 0.85)'
   if (tab?.id === 'risk') return 'rgba(245, 158, 11, 0.85)'
   return 'rgba(17, 153, 142, 0.85)'

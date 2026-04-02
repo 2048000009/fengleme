@@ -29,8 +29,8 @@ const formData = ref({
 const loadContacts = async () => {
   try {
     loading.value = true
-    const data = await getContacts()
-    contacts.value = data
+    const res = await getContacts()
+    contacts.value = res.data || []
   } catch (error) {
     uni.showToast({
       title: '加载联系人失败',
@@ -44,8 +44,8 @@ const loadContacts = async () => {
 // 加载心理热线
 const loadHotlines = async () => {
   try {
-    const data = await getHotlines()
-    hotlines.value = data
+    const res = await getHotlines()
+    hotlines.value = res.data || []
   } catch (error) {
     uni.showToast({
       title: '加载热线失败',
